@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kattis", "Kattis\Kattis.csproj", "{9FA63DB7-EA9C-4F0C-9B52-CD375AFCCDA7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kattis.Tests", "Kattis.Tests\Kattis.Tests.csproj", "{AF0C7DD5-2A18-462E-8823-D8F56C93CCEF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9FA63DB7-EA9C-4F0C-9B52-CD375AFCCDA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FA63DB7-EA9C-4F0C-9B52-CD375AFCCDA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FA63DB7-EA9C-4F0C-9B52-CD375AFCCDA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FA63DB7-EA9C-4F0C-9B52-CD375AFCCDA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF0C7DD5-2A18-462E-8823-D8F56C93CCEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF0C7DD5-2A18-462E-8823-D8F56C93CCEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF0C7DD5-2A18-462E-8823-D8F56C93CCEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF0C7DD5-2A18-462E-8823-D8F56C93CCEF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
