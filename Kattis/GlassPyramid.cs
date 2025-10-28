@@ -5,31 +5,28 @@ namespace Kattis;
 public class GlassPyramid
 {
     private const int MaxDepth = 50;
+    private static readonly Dictionary<int, Glass> GlassDictionary = new();
     
-    private class Glass(int depth, int index, Glass? subLeftGlass = null, Glass? subRightGlass = null)
+    private class Glass
     {
-        private const double Capacity = 10.0;
-        
-        public int Depth { get; } = depth;
-        public int Index { get; } = index;
-        public double Inflow { get; set; }
-        public bool Bottom => Depth == MaxDepth - 1;
-        public Glass? SubLeftGlass { get; } = subLeftGlass;
-        public Glass? SubRightGlass { get; } = subRightGlass;
-        public bool Full => _volume == Capacity;
-        
-        private double _volume;
+        private const decimal Capacity = 1.0m;
+        public bool Full = false;
+        public decimal Inflow { get; set; } = 0.0m;
+        public decimal Volume { get; private set; } = 0.0m;
 
-        public double IncreaseVolume(double amount)
+        public decimal Pour()
         {
-            _volume += amount;
-            var overflow = 0.0;
-
-            if (_volume >= Capacity)
-            {
-                overflow = _volume = Capacity;
-            }
+            var overflow = 0.0m;
             
+            Volume += Inflow;
+
+            if (Volume < Capacity)
+                return overflow;
+            
+            Full = true;
+            overflow = Capacity - Volume;
+            Volume = Capacity;
+
             return overflow;
         }
     }
@@ -38,72 +35,74 @@ public class GlassPyramid
     {
         var targetDepth = int.Parse(new string(Console.ReadLine()));
         var targetIndex = int.Parse(new string(Console.ReadLine()));
-        
-        var glassQueue = new Queue<Glass>();
-        var topGlass = _initiateGlassPyramid();
-        var targetGlassFull = false;
         var counter = 0.0;
-        
-        while (!targetGlassFull)
-        {
-            topGlass.Inflow = 1.0;
-            glassQueue.Enqueue(topGlass);
-            
-            while (0 < glassQueue.Count)
-            {
-                var glass = glassQueue.Dequeue();
-                var overflow = glass.IncreaseVolume(glass.Inflow);
-                glass.Inflow = 0.0;
 
-                if (0 < overflow)
-                {
-                    if (glass.SubLeftGlass != null)
-                    {
-                        glass.SubLeftGlass.Inflow = overflow / 2;
-                        
-                        if (!glassQueue.Contains(glass.SubLeftGlass))
-                            glassQueue.Enqueue(glass.SubLeftGlass);
-                    }
-
-                    if (glass.SubRightGlass != null)
-                    {
-                        glass.SubRightGlass.Inflow = overflow / 2;
-                        glassQueue.Enqueue(glass.SubRightGlass);  
-                    }
-                }
-
-                if (glass.Depth != targetDepth || glass.Index != targetIndex || !glass.Full)
-                    continue;
-                
-                targetGlassFull = true;
-                Console.WriteLine(++counter);
-                break;
-            }
-            
-            ++counter;
-        }
-    }
-
-    private static Glass _initiateGlassPyramid()
-    {
-        var glassStack = new Stack<Glass>();
-
-        for (var depth = MaxDepth - 1; 0 <= depth; depth--)
+        for (var depth = 0; depth < MaxDepth; depth++)
         {
             for (var index = 0; index < depth + 1; index++)
             {
-                if (depth == MaxDepth - 1)
-                    glassStack.Push(new Glass(depth, index));
-
-                else
-                {
-                    glassStack.Push(new Glass(depth, index, glassStack.Pop(), index != depth ? 
-                        glassStack.Peek() : 
-                        glassStack.Pop()));
-                }
+                GlassDictionary.Add(HashCode.Combine(depth, index), new Glass());
             }
         }
+        
+        var targetGlass = GlassDictionary.GetValueOrDefault(HashCode.Combine(targetDepth, targetIndex));
+        var topGlass = GlassDictionary.GetValueOrDefault(HashCode.Combine(0, 0));
 
-        return glassStack.Pop();
+        if (targetGlass == null)
+            throw new ArgumentException("Target glass at depth: " + targetDepth + ", and  target index: " + targetIndex + " was not found");
+        
+        if (topGlass == null)
+            throw new InvalidOperationException("Top glass was not found");
+        
+        while (!targetGlass.Full)
+        {
+            topGlass.Inflow = 0.1m;
+            
+            for (var depth = 0; depth <= targetDepth; depth++)
+            {
+                for (var index = 0; index < depth + 1; index++)
+                {
+                    var glass = GlassDictionary.GetValueOrDefault(HashCode.Combine(depth, index));
+                    
+                    if (glass == null)
+                        throw new ArgumentException("Glass at depth: " + depth + ", and index: " + index + " was not found");
+                    
+                    if (glass.Inflow == 0)
+                        continue;
+
+                    if (glass.Full)
+                    {
+                        HandleOverflow(depth, index, glass.Inflow);
+                        glass.Inflow = 0.0m;
+                        continue;
+                    }
+
+                    var overflow = glass.Pour();
+                    glass.Inflow = 0.0m;
+
+                    if (overflow == 0 || depth == MaxDepth - 1)
+                        continue;
+                    
+                    HandleOverflow(depth, index, overflow);
+                }
+            }
+
+            ++counter;
+        }
+        
+        Console.WriteLine(counter);
+        GlassDictionary.Clear();
+    }
+
+    private static void HandleOverflow(int depth, int index, decimal overflow)
+    {
+        var subLeftGlass = GlassDictionary.GetValueOrDefault(HashCode.Combine(depth + 1, index));
+        var subRightGlass = GlassDictionary.GetValueOrDefault(HashCode.Combine(depth + 1, index + 1));
+
+        if (subLeftGlass == null || subRightGlass == null)
+            throw new ArgumentException("Glass at depth: " + (depth + 1) + ", and index: " + index + " or at " + (depth + 1) + ", and index: " + (index + 1) + " was not found");
+
+        subLeftGlass.Inflow += overflow / 2;
+        subRightGlass.Inflow += overflow / 2;
     }
 }
